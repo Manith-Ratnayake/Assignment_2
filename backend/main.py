@@ -19,7 +19,7 @@ from pydantic import BaseModel, ConfigDict, Field
 
 load_dotenv()
 
-DATA_DIR = Path(os.getenv("DATA_DIR", Path(__file__).resolve().parent / "data"))
+DATA_DIR = Path(os.getenv("DATA_DIR", Path(__file__).resolve().parent.parent / "data"))
 MODEL = os.getenv("OPENAI_MODEL", "gpt-4.1-mini")
 FRONTEND_ORIGIN = os.getenv("FRONTEND_ORIGIN", "http://localhost:3000")
 
