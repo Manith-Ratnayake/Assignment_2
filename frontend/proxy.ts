@@ -13,6 +13,17 @@ export async function proxy(request: NextRequest) {
     return NextResponse.next();
   }
 
+  // The access-controlled assistant lives at /meridian and talks to the Python backend.
+  // It needs no login, and the template's own chat (which calls the model directly) is
+  // not used, so send those routes to /meridian.
+  if (pathname === "/meridian") {
+    return NextResponse.next();
+  }
+  if (pathname === "/" || pathname.startsWith("/chat")) {
+    const meridianBase = process.env.NEXT_PUBLIC_BASE_PATH ?? "";
+    return NextResponse.redirect(new URL(`${meridianBase}/meridian`, request.url));
+  }
+
   const token = await getToken({
     req: request,
     secret: process.env.AUTH_SECRET,

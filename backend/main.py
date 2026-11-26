@@ -246,8 +246,10 @@ def ask(req: AskRequest):
 
     try:
         raw = call_llm(messages)
-    except Exception:
-        raise HTTPException(502, "The assistant is unavailable right now.")
+    except Exception as e:
+        # Show the real reason (bad key, unknown model, network...). The error comes from
+        # the OpenAI client, not from the entity data.
+        raise HTTPException(502, f"LLM call failed: {type(e).__name__}: {e}")
 
     answer, citations = guard(raw, records, aggs, messages[1]["content"])
     return {"answer": answer, "citations": citations}

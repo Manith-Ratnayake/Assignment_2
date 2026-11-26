@@ -17,12 +17,22 @@ export default function MeridianPage() {
 
   useEffect(() => {
     fetch(`${API}/api/users`)
-      .then((r) => r.json())
-      .then((list: User[]) => {
+      .then(async (r) => {
+        const text = await r.text();
+        if (!r.ok) {
+          throw new Error(`GET /api/users failed: HTTP ${r.status} ${text}`);
+        }
+        return JSON.parse(text) as User[];
+      })
+      .then((list) => {
         setUsers(list);
         setUserId(list[0]?.id ?? "");
       })
-      .catch(() => setAnswer("Could not reach the backend."));
+      .catch((err) =>
+        setAnswer(
+          `Could not reach the backend at ${API}: ${err instanceof Error ? err.message : String(err)}`
+        )
+      );
   }, []);
 
   async function ask(e: React.FormEvent) {
@@ -36,16 +46,17 @@ export default function MeridianPage() {
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ user_id: userId, question }),
       });
-      const data = await r.json();
+      const text = await r.text();
       if (!r.ok) {
-        throw new Error(
-          typeof data.detail === "string" ? data.detail : "Request failed"
-        );
+        throw new Error(`POST /api/ask failed: HTTP ${r.status} ${text}`);
       }
+      const data = JSON.parse(text);
       setAnswer(data.answer);
-      setCitations(data.citations);
+      setCitations(data.citations ?? []);
     } catch (err) {
-      setAnswer(err instanceof Error ? err.message : "Request failed");
+      setAnswer(
+        `Error: ${err instanceof Error ? err.message : String(err)} (backend: ${API})`
+      );
     } finally {
       setLoading(false);
     }
