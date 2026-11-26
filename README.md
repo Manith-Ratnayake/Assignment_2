@@ -1,5 +1,10 @@
 # Meridian Group Entity Assistant
 
+❯ uvicorn main:app --reload --port 8000
+
+> pnpm dev
+
+
 Ask questions in plain English about Meridian Group's legal entities. Each user only gets
 answers from the entities they're allowed to see.
 
